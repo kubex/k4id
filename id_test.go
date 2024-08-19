@@ -35,8 +35,9 @@ func BenchmarkIDGenerationMilli(b *testing.B) {
 
 func BenchmarkIDGenerationSmall(b *testing.B) {
 	idGen := DefaultGenerator()
-	idGen.SetBaseLength(6)
+	idGen.SetBaseLength(9)
 	idGen.SetTimeSize(TimeGeneratorSecond)
+	log.Println(idGen.New().String())
 	benchmarkIDGeneration(idGen, b)
 }
 
@@ -102,4 +103,22 @@ func TestIDUUID(t *testing.T) {
 func TestUUIDImport(t *testing.T) {
 	uuid := "690482d9-1dda-42b8-b6e1-8df9d16baf05"
 	log.Println(FromUUID(uuid).String())
+}
+
+func TestGenerateWorkspaceID(t *testing.T) {
+	idGen := DefaultGenerator()
+	idGen.SetBaseLength(9)
+	idGen.SetHostID("crs")
+	idGen.SetTimeSize(TimeGeneratorSecond)
+	log.Println(idGen.New().String())
+}
+
+func TestExtractedTime(t *testing.T) {
+	id := "0QKSstH3dyZ1711Hx7M"
+	gen := DefaultGenerator()
+	gen.SetTimeSize(TimeGeneratorNano)
+	ti := gen.ExtractTime(id)
+	if ti.Format("2006-01-02 15:04:05") != "2023-01-01 00:00:00" {
+		t.Fatal("Invalid time")
+	}
 }

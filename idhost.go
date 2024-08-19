@@ -53,6 +53,28 @@ func (t TimeGenerator) Generate(src time.Time) string {
 	return i.Text(62)
 }
 
+func (t TimeGenerator) Parse(src string) time.Time {
+	var i big.Int
+	i.SetString(src, 62)
+	switch t {
+	case TimeGeneratorNano:
+		return time.Unix(0, i.Int64())
+	case TimeGeneratorMicro:
+		return time.Unix(0, i.Int64()*1000)
+	case TimeGeneratorMilli:
+		return time.Unix(0, i.Int64()*1000000)
+	case TimeGeneratorSecond:
+		return time.Unix(i.Int64(), 0)
+	case TimeGeneratorMinute:
+		return time.Unix(i.Int64()*60, 0)
+	case TimeGeneratorHour:
+		return time.Unix(i.Int64()*3600, 0)
+	case TimeGeneratorDay:
+		return time.Unix(i.Int64()*86400, 0)
+	}
+	return time.Time{}
+}
+
 func init() {
 	globalIDHost = DefaultGenerator()
 }
@@ -148,4 +170,28 @@ func (h *Generator) fixLen(input string, reqLen int) string {
 		return input[:reqLen]
 	}
 	return input + strings.Repeat("X", reqLen-srcLen)
+}
+
+func (h *Generator) ExtractTime(fullID string) time.Time {
+	id := FromString(fullID).uniqueKey
+	timeSize := 3
+	switch h.timeSize {
+	case TimeGeneratorNano:
+		timeSize = 11
+	case TimeGeneratorMicro:
+		timeSize = 9
+	case TimeGeneratorMilli:
+		timeSize = 7
+	case TimeGeneratorSecond:
+		timeSize = 6
+	case TimeGeneratorMinute:
+		timeSize = 5
+	case TimeGeneratorHour:
+		timeSize = 4
+	}
+	if len(id) < timeSize {
+		return time.Time{}
+	}
+
+	return h.timeSize.Parse(h.reverse(id[:timeSize]))
 }

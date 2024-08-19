@@ -36,7 +36,7 @@ func FromString(input string) ID {
 // FromUUID converts a UUID to an ID
 func FromUUID(input string) ID {
 	rawID, _ := hex.DecodeString(strings.ReplaceAll(input, "-", ""))
-	return FromString(strings.ReplaceAll(encodeB63(rawID), "?", ""))
+	return FromString(strings.ReplaceAll(Base63.Encode(rawID), "?", ""))
 }
 
 // ID is a unique identifier, along with a verification checksum
@@ -61,7 +61,7 @@ func (i ID) UUID() string {
 	var uuid string
 	for xi := 20; xi < 24; xi++ {
 		if len(uuid) < 32 {
-			rawID, _ = decodeB63((i.String() + "??????????????????????")[:xi])
+			rawID, _ = Base63.Decode((i.String() + "??????????????????????")[:xi])
 			uuid = hex.EncodeToString(rawID)
 		}
 	}

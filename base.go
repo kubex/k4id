@@ -5,18 +5,29 @@ import (
 	"errors"
 )
 
-const baseNum = 63
+var Base36 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+var Base63 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?"))
 
-var base63Alpha = []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?")
-var base63Map = make(map[rune]int)
-
-func init() {
-	for i := 0; i < baseNum; i++ {
-		base63Map[base63Alpha[i]] = i
+func NewBase(alpha []rune) *Base {
+	b := &Base{
+		base:    len(alpha),
+		alpha:   alpha,
+		baseMap: make(map[rune]int),
 	}
+
+	for i := 0; i < b.base; i++ {
+		b.baseMap[b.alpha[i]] = i
+	}
+	return b
 }
 
-func encodeB63(source []byte) string {
+type Base struct {
+	base    int
+	alpha   []rune
+	baseMap map[rune]int
+}
+
+func (b Base) Encode(source []byte) string {
 	if len(source) == 0 {
 		return ""
 	}
@@ -28,30 +39,30 @@ func encodeB63(source []byte) string {
 
 		for j := 0; j < len(digits); j++ {
 			carry += digits[j] << 8
-			digits[j] = carry % baseNum
-			carry = carry / baseNum
+			digits[j] = carry % b.base
+			carry = carry / b.base
 		}
 
 		for carry > 0 {
-			digits = append(digits, carry%baseNum)
-			carry = carry / baseNum
+			digits = append(digits, carry%b.base)
+			carry = carry / b.base
 		}
 	}
 
 	var res bytes.Buffer
 
 	for k := 0; source[k] == 0 && k < len(source)-1; k++ {
-		res.WriteRune(base63Alpha[0])
+		res.WriteRune(b.alpha[0])
 	}
 
 	for q := len(digits) - 1; q >= 0; q-- {
-		res.WriteRune(base63Alpha[digits[q]])
+		res.WriteRune(b.alpha[digits[q]])
 	}
 
 	return res.String()
 }
 
-func decodeB63(source string) ([]byte, error) {
+func (b Base) Decode(source string) ([]byte, error) {
 	if len(source) == 0 {
 		return []byte{}, nil
 	}
@@ -60,7 +71,7 @@ func decodeB63(source string) ([]byte, error) {
 
 	byts := []byte{0}
 	for i := 0; i < len(runes); i++ {
-		value, ok := base63Map[runes[i]]
+		value, ok := b.baseMap[runes[i]]
 
 		if !ok {
 			return nil, errors.New("non base62 character")
@@ -69,7 +80,7 @@ func decodeB63(source string) ([]byte, error) {
 		carry := value
 
 		for j := 0; j < len(byts); j++ {
-			carry += int(byts[j]) * baseNum
+			carry += int(byts[j]) * b.base
 			byts[j] = byte(carry & 0xff)
 			carry >>= 8
 		}
@@ -80,7 +91,7 @@ func decodeB63(source string) ([]byte, error) {
 		}
 	}
 
-	for k := 0; runes[k] == base63Alpha[0] && k < len(runes)-1; k++ {
+	for k := 0; runes[k] == b.alpha[0] && k < len(runes)-1; k++ {
 		byts = append(byts, 0)
 	}
 
