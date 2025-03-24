@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"math"
 	"testing"
 )
 
@@ -21,17 +22,24 @@ func TestEncodeB63(t *testing.T) {
 
 func TestBase36(t *testing.T) {
 	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bs, 1234567890)
+	binary.BigEndian.PutUint32(bs, 1234567890)
 	log.Println(Base36.Encode(bs))
 	log.Println(Base36.Decode("KF12OI"))
 
 	bs2 := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bs2, 2147483646)
+	binary.BigEndian.PutUint32(bs2, 2147483646)
 	log.Println(Base36.Encode(bs2))
 	log.Println(Base36.Decode("ZIK0ZI"))
 
 	bs64 := make([]byte, 8)
-	binary.LittleEndian.PutUint64(bs64, 992147483646)
+	binary.BigEndian.PutUint64(bs64, 9223372036854775807)
 	log.Println(Base36.Encode(bs64))
-	log.Println(Base36.Decode("CNSAZTVI"))
+	log.Println(Base36.Decode("1Y2P0IJ32E8E7"))
+}
+
+func TestEncodeUInt64(t *testing.T) {
+	maxB36 := Base36.EncodeUInt64(math.MaxInt64)
+	if maxB36 != "1Y2P0IJ32E8E7" {
+		t.Errorf("Expected 1Y2P0IJ32E8E7 but got %s", maxB36)
+	}
 }

@@ -2,6 +2,7 @@ package k4id
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 )
 
@@ -28,6 +29,8 @@ type Base struct {
 }
 
 func (b Base) Encode(source []byte) string {
+	source = bytes.Trim(source, "\x00")
+
 	if len(source) == 0 {
 		return ""
 	}
@@ -101,4 +104,10 @@ func (b Base) Decode(source string) ([]byte, error) {
 	}
 
 	return byts, nil
+}
+
+func (b Base) EncodeUInt64(source uint64) string {
+	bs64 := make([]byte, 8)
+	binary.BigEndian.PutUint64(bs64, source)
+	return b.Encode(bs64)
 }
