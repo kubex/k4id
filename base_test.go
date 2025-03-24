@@ -43,3 +43,10 @@ func TestEncodeUInt64(t *testing.T) {
 		t.Errorf("Expected 1Y2P0IJ32E8E7 but got %s", maxB36)
 	}
 }
+
+func TestDecodeUInt64(t *testing.T) {
+	maxB36 := Base36.DecodeToUInt64("1Y2P0IJ32E8E7")
+	if maxB36 != math.MaxInt64 {
+		t.Errorf("Expected MaxInt64 but got %d", maxB36)
+	}
+}

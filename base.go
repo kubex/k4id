@@ -111,3 +111,13 @@ func (b Base) EncodeUInt64(source uint64) string {
 	binary.BigEndian.PutUint64(bs64, source)
 	return b.Encode(bs64)
 }
+
+func (b Base) DecodeToUInt64(source string) uint64 {
+	decoded, err := b.Decode(source)
+	if err != nil {
+		return 0
+	}
+	decodedB := make([]byte, 8)
+	copy(decodedB[8-len(decoded):], decoded)
+	return binary.BigEndian.Uint64(decodedB)
+}
