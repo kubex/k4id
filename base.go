@@ -8,6 +8,7 @@ import (
 
 var Base36 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 var Base63 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?"))
+var Base62 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"))
 
 func NewBase(alpha []rune) *Base {
 	b := &Base{
