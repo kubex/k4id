@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"strconv"
 )
 
+var Base16 = NewBase([]rune("0123456789ABCDEF"))
 var Base36 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
-var Base63 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?"))
 var Base62 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"))
+var Base63 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?"))
 
 func NewBase(alpha []rune) *Base {
 	b := &Base{
@@ -121,4 +123,33 @@ func (b Base) DecodeToUInt64(source string) uint64 {
 	decodedB := make([]byte, 8)
 	copy(decodedB[8-len(decoded):], decoded)
 	return binary.BigEndian.Uint64(decodedB)
+}
+
+func (b Base) CompactHex(source string) string {
+	final := ""
+	chunks := hexChunks(source)
+	for _, chunk := range chunks {
+		if chunk == 0 {
+			final += "0"
+		} else {
+			final += b.EncodeUInt64(chunk)
+		}
+	}
+	return final
+}
+
+func hexChunks(source string) []uint64 {
+	chunks := make([]uint64, 0, len(source)/16)
+	for i := 0; i < len(source); i += 16 {
+		end := i + 16
+		if end > len(source) {
+			end = len(source)
+		}
+		chunk, err := strconv.ParseUint(source[i:end], 16, 64)
+		if err != nil {
+			return nil
+		}
+		chunks = append(chunks, chunk)
+	}
+	return chunks
 }
