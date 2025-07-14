@@ -8,7 +8,7 @@ import (
 )
 
 var Base16 = NewBase([]rune("0123456789ABCDEF"))
-var Base32 = NewBase([]rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"))
+var HumanBase32 = NewBase([]rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"))
 var Base36 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 var Base62 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"))
 var Base63 = NewBase([]rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?"))
