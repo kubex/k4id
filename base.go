@@ -34,7 +34,10 @@ type Base struct {
 
 func (b Base) Encode(source []byte) string {
 	source = bytes.Trim(source, "\x00")
+	return b.EncodeWithTrailing(source)
+}
 
+func (b Base) EncodeWithTrailing(source []byte) string {
 	if len(source) == 0 {
 		return ""
 	}
@@ -113,7 +116,7 @@ func (b Base) Decode(source string) ([]byte, error) {
 func (b Base) EncodeUInt64(source uint64) string {
 	bs64 := make([]byte, 8)
 	binary.BigEndian.PutUint64(bs64, source)
-	return b.Encode(bs64)
+	return b.EncodeWithTrailing(bs64)
 }
 
 func (b Base) DecodeToUInt64(source string) uint64 {
