@@ -100,6 +100,12 @@ func DefaultGenerator() Generator {
 	return h
 }
 
+func NewGenerator(timeSize TimeGenerator) Generator {
+	h := DefaultGenerator()
+	h.SetTimeSize(timeSize)
+	return h
+}
+
 // SetHostID sets the host ID to be used when generating IDs
 func (h *Generator) SetHostID(id string) {
 	h.hostID = id
